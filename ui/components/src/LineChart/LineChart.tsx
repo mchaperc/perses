@@ -20,9 +20,11 @@ import type {
   LegendComponentOption,
   YAXisComponentOption,
   TooltipComponentOption,
+  XAXisComponentOption,
 } from 'echarts';
 import { ECharts as EChartsInstance, use } from 'echarts/core';
-import { LineChart as EChartsLineChart } from 'echarts/charts';
+import { LineChart as EChartsLineChart, ScatterChart as EChartsScatterChart } from 'echarts/charts';
+import { LabelLayout } from 'echarts/features';
 import {
   GridComponent,
   DataZoomComponent,
@@ -35,9 +37,9 @@ import {
   LegendComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { EChart, OnEventsType } from '../EChart';
-import { EChartsDataFormat } from '../model/graph';
-import { UnitOptions } from '../model/units';
+import { EChart, MouseEventsParameters, OnEventsType } from '../EChart';
+import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT } from '../model/graph';
+import { formatValue, UnitOptions } from '../model/units';
 import { useChartsTheme } from '../context/ChartsThemeProvider';
 import { TimeSeriesTooltip } from '../TimeSeriesTooltip';
 import { useTimeZone } from '../context/TimeZoneProvider';
@@ -45,6 +47,7 @@ import { enableDataZoom, getDateRange, getFormattedDate, getYAxes, restoreChart,
 
 use([
   EChartsLineChart,
+  EChartsScatterChart,
   GridComponent,
   DataZoomComponent,
   MarkAreaComponent,
@@ -55,6 +58,7 @@ use([
   TooltipComponent,
   LegendComponent,
   CanvasRenderer,
+  LabelLayout,
 ]);
 
 export type TooltipConfig = {
@@ -69,6 +73,7 @@ export interface LineChartProps {
   height: number;
   data: EChartsDataFormat;
   yAxis?: YAXisComponentOption;
+  xAxis?: XAXisComponentOption[];
   unit?: UnitOptions;
   grid?: GridComponentOption;
   legend?: LegendComponentOption;
@@ -76,6 +81,7 @@ export interface LineChartProps {
   noDataVariant?: 'chart' | 'message';
   onDataZoom?: (e: ZoomEventData) => void;
   onDoubleClick?: (e: MouseEvent) => void;
+  onClick?: (e: MouseEventsParameters<unknown>) => void;
   __experimentalEChartsOptionsOverride?: (options: EChartsCoreOption) => EChartsCoreOption;
 }
 
@@ -83,6 +89,7 @@ export function LineChart({
   height,
   data,
   yAxis,
+  xAxis,
   unit,
   grid,
   legend,
@@ -90,6 +97,7 @@ export function LineChart({
   noDataVariant = 'message',
   onDataZoom,
   onDoubleClick,
+  onClick,
   __experimentalEChartsOptionsOverride,
 }: LineChartProps) {
   const chartsTheme = useChartsTheme();
@@ -99,6 +107,7 @@ export function LineChart({
   const { timeZone } = useTimeZone();
 
   const handleEvents: OnEventsType<LineSeriesOption['data'] | unknown> = useMemo(() => {
+    const clickHandler = onClick ? { click: onClick } : {};
     return {
       datazoom: (params) => {
         if (onDataZoom === undefined) {
@@ -123,6 +132,7 @@ export function LineChart({
           onDataZoom(zoomEvent);
         }
       },
+      ...clickHandler,
       // TODO: use legendselectchanged event to fix tooltip when legend selected
     };
   }, [data, onDataZoom, setIsTooltipPinned]);
@@ -152,26 +162,73 @@ export function LineChart({
     // empty array because a `null` value will throw an error.
     if (data.timeSeries === null || (data.timeSeries.length === 0 && noDataVariant === 'message')) return noDataOption;
 
+    // show symbols and axisPointer dashed line on hover
+    const isOptimizedMode = data.timeSeries.length > OPTIMIZED_MODE_SERIES_LIMIT;
+
+    // annotations are plotted on hidden xAxis
+    const annotationsPopulated = data.xAxisAlt !== undefined && data.xAxisAlt.length > 0;
+
+    // when events are present increase padding above time series data so tooltip less likely to clash
+    const eventsBoundaryOffset = annotationsPopulated ? '50%' : '10%'; // TODO: play around with first value since ideal value depends on data
+
+    const yAxisPrimary: YAXisComponentOption = {
+      type: 'value',
+      boundaryGap: [0, eventsBoundaryOffset],
+      axisLabel: {
+        showMaxLabel: !annotationsPopulated,
+        formatter: (value: number) => {
+          return formatValue(value, unit);
+        },
+      },
+    };
+
+    // Allow support for secondary axis upon which annotations can be displayed. If no annotations are provided, this axis will not be displayed.
+    const yAxisSecondary: YAXisComponentOption = data.xAxisAlt ? {
+      show: false,
+      type: 'value',
+      data: data.timeSeries.reduce<number[]>((accum, series, idx) => {
+        if (series.type === 'line') {
+          accum.push(idx);
+        }
+        return accum;
+      }, []),
+      axisTick: {
+        show: false,
+      },
+      axisLabel: {
+        show: true,
+      },
+      axisLine: {
+        show: false,
+      },
+    } : {}
+    
     const rangeMs = data.rangeMs ?? getDateRange(data.xAxis);
+
+    const defaultXAxis: XAXisComponentOption = {
+      type: 'category',
+      data: data.xAxis,
+      max: data.xAxisMax,
+      axisLabel: {
+        formatter: (value: string) => {
+          return getFormattedDate(Number(value) ?? 0, rangeMs, timeZone);
+        },
+      },
+    };
 
     const option: EChartsCoreOption = {
       series: data.timeSeries,
-      xAxis: {
-        type: 'category',
-        data: data.xAxis,
-        max: data.xAxisMax,
-        axisLabel: {
-          formatter: (value: number) => {
-            return getFormattedDate(value, rangeMs, timeZone);
-          },
-        },
-      },
-      yAxis: getYAxes(yAxis, unit),
+      xAxis: xAxis ?? [defaultXAxis],
+      yAxis: [...getYAxes(yAxisPrimary, unit), yAxisSecondary],
       animation: false,
       tooltip: {
-        show: true,
+        show: !isOptimizedMode && !annotationsPopulated, // hide axis pointer when events are present or else two dotted lines show
         trigger: 'axis',
         showContent: false, // echarts tooltip content hidden since we use custom tooltip instead
+        axisPointer: {
+          type: isOptimizedMode || annotationsPopulated ? 'none' : 'line',
+          z: 0, // ensure point symbol shows on top of dashed line
+        },
       },
       // https://echarts.apache.org/en/option.html#axisPointer
       axisPointer: {
@@ -197,7 +254,9 @@ export function LineChart({
       return __experimentalEChartsOptionsOverride(option);
     }
     return option;
-  }, [data, yAxis, unit, grid, legend, noDataOption, timeZone, __experimentalEChartsOptionsOverride, noDataVariant]);
+  }, [data, yAxis, xAxis, unit, grid, legend, noDataOption, timeZone, __experimentalEChartsOptionsOverride, noDataVariant]);
+
+  console.debug({option})
 
   return (
     <Box

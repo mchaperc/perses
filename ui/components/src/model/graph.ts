@@ -12,7 +12,8 @@
 // limitations under the License.
 
 import { TimeSeriesValueTuple } from '@perses-dev/core';
-import { LineSeriesOption } from 'echarts/charts';
+import { ComposeOption } from 'echarts';
+import { LineSeriesOption, ScatterSeriesOption } from 'echarts/charts';
 import { LegendItem } from './legend';
 
 // adjust display when there are many time series to help with performance
@@ -27,14 +28,12 @@ export interface GraphSeries {
 
 export type EChartsValues = number | null | '-';
 
-export interface EChartsTimeSeries extends Omit<LineSeriesOption, 'data'> {
-  // TODO: support dataset and both category / time xAxis types
-  data: EChartsValues[];
-}
+export type EChartsTimeSeries = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
 
 export type EChartsDataFormat = {
   timeSeries: EChartsTimeSeries[];
   xAxis: number[];
+  xAxisAlt?: number[];
   legendItems?: LegendItem[];
   xAxisMax?: number | string;
   rangeMs?: number;
