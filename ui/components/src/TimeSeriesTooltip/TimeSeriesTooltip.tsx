@@ -75,11 +75,14 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     return null;
   }
 
-  const clonedScatterTooltip = scatterTooltip && cloneElement(scatterTooltip, { focusedSeries });
-  const isScatter = focusedSeries?.every((series) => series.seriesType === 'scatter');
-
-  if (clonedScatterTooltip && isScatter && focusedSeries !== null) {
-    return clonedScatterTooltip
+  // If the user has provided a custom scatter tooltip, use it when focused series are all scatter.
+  if (scatterTooltip) {
+    const clonedScatterTooltip = cloneElement(scatterTooltip, { focusedSeries });
+    const isScatter = focusedSeries?.every((series) => series.seriesType === 'scatter');
+  
+    if (isScatter && focusedSeries !== null) {
+      return clonedScatterTooltip
+    }
   }
 
   if (isTooltipPinned === true && pinnedPos === null) {
