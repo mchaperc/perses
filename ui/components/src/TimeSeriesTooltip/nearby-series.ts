@@ -30,6 +30,7 @@ export interface NearbySeriesInfo {
   y: number;
   formattedY: string;
   isClosestToCursor: boolean;
+  seriesType?: 'line' | 'scatter';
 }
 
 export type NearbySeriesArray = NearbySeriesInfo[];

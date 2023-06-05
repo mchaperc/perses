@@ -64,6 +64,7 @@ use([
 export type TooltipConfig = {
   wrapLabels: boolean;
   hidden?: boolean;
+  scatterTooltip?: React.ReactElement;
 };
 
 export interface LineChartProps {
@@ -300,6 +301,7 @@ export function LineChart({
             onUnpinClick={() => {
               setIsTooltipPinned(false);
             }}
+            scatterTooltip={tooltipConfig.scatterTooltip}
           />
         )}
       <EChart

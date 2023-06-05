@@ -13,11 +13,11 @@
 
 import { Box, Portal, Typography, Stack, Switch } from '@mui/material';
 import { ECharts as EChartsInstance } from 'echarts/core';
-import React, { useState } from 'react';
+import React, { useMemo, useState, cloneElement } from 'react';
 import useResizeObserver from 'use-resize-observer';
 import { EChartsDataFormat, UnitOptions } from '../model';
 import { TooltipContent } from './TooltipContent';
-import { getNearbySeriesData } from './nearby-series';
+import { getNearbySeriesData, NearbySeriesArray } from './nearby-series';
 import {
   CursorCoordinates,
   FALLBACK_CHART_WIDTH,
@@ -34,6 +34,7 @@ interface TimeSeriesTooltipProps {
   isTooltipPinned: boolean;
   wrapLabels?: boolean;
   unit?: UnitOptions;
+  scatterTooltip?: React.ReactElement;
   onUnpinClick?: () => void;
 }
 
@@ -43,6 +44,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
   wrapLabels,
   isTooltipPinned,
   unit,
+  scatterTooltip,
   onUnpinClick,
 }: TimeSeriesTooltipProps) {
   const [showAllSeries, setShowAllSeries] = useState(false);
@@ -68,8 +70,16 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     unit,
     showAllSeries,
   });
+
   if (focusedSeries.length === 0) {
     return null;
+  }
+
+  const clonedScatterTooltip = scatterTooltip && cloneElement(scatterTooltip, { focusedSeries });
+  const isScatter = focusedSeries?.every((series) => series.seriesType === 'scatter');
+
+  if (clonedScatterTooltip && isScatter && focusedSeries !== null) {
+    return clonedScatterTooltip
   }
 
   if (isTooltipPinned === true && pinnedPos === null) {
