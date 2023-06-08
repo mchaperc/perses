@@ -27,6 +27,7 @@ import {
   useChartsTheme,
   SelectedLegendItemState,
   ContentWithLegend,
+  AnnotationTooltip,
 } from '@perses-dev/components';
 import { TimeSeriesChartOptions, DEFAULT_UNIT, DEFAULT_VISUAL } from './time-series-chart-model';
 import {
@@ -288,7 +289,7 @@ export function TimeSeriesChartPanel(props: TimeSeriesChartProps) {
                 yAxis={echartsYAxis}
                 unit={unit}
                 grid={gridOverrides}
-                tooltipConfig={{ wrapLabels: true }}
+                tooltipConfig={{ wrapLabels: true, scatterTooltip: AnnotationTooltip }}
                 onDataZoom={handleDataZoom}
               />
             </Box>

@@ -38,3 +38,5 @@ export type EChartsDataFormat = {
   xAxisMax?: number | string;
   rangeMs?: number;
 };
+
+export type AnnotationSeries = ComposeOption<ScatterSeriesOption>;

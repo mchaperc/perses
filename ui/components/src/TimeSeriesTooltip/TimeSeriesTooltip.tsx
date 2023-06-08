@@ -26,7 +26,7 @@ import {
   TOOLTIP_MAX_WIDTH,
   useMousePosition,
 } from './tooltip-model';
-import { assembleTransform } from './utils';
+import { assembleTransform, getTooltipStyles } from './utils';
 
 interface TimeSeriesTooltipProps {
   chartRef: React.MutableRefObject<EChartsInstance | undefined>;
@@ -77,11 +77,15 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
 
   // If the user has provided a custom scatter tooltip, use it when focused series are all scatter.
   if (scatterTooltip) {
-    const clonedScatterTooltip = cloneElement(scatterTooltip, { focusedSeries });
+    const clonedScatterTooltip = cloneElement(scatterTooltip, {
+      series: focusedSeries,
+      cursorTransform: cursorTransform,
+    });
+    // const clonedScatterTooltip = cloneElement(scatterTooltip, { focusedSeries });
     const isScatter = focusedSeries?.every((series) => series.seriesType === 'scatter');
-  
     if (isScatter && focusedSeries !== null) {
-      return clonedScatterTooltip
+      console.log('isScatter!!!');
+      return clonedScatterTooltip;
     }
   }
 
@@ -101,27 +105,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     <Portal>
       <Box
         ref={tooltipRef}
-        sx={(theme) => ({
-          minWidth: TOOLTIP_MIN_WIDTH,
-          maxWidth: TOOLTIP_MAX_WIDTH,
-          maxHeight: TOOLTIP_MAX_HEIGHT,
-          padding: theme.spacing(0.5, 2),
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          backgroundColor: '#2E313E', // TODO: use colors from theme, separate styles for dark mode
-          borderRadius: '6px',
-          color: '#fff',
-          fontSize: '11px',
-          visibility: 'visible',
-          opacity: 1,
-          transition: 'all 0.1s ease-out',
-          zIndex: theme.zIndex.tooltip,
-          overflow: 'hidden',
-          '&:hover': {
-            overflowY: 'auto',
-          },
-        })}
+        sx={(theme) => getTooltipStyles(theme)}
         style={{
           transform: cursorTransform,
         }}

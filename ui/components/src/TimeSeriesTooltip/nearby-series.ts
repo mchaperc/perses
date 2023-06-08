@@ -12,7 +12,17 @@
 // limitations under the License.
 
 import { ECharts as EChartsInstance } from 'echarts/core';
-import { formatValue, UnitOptions, EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT } from '../model';
+// import { ComposeOption } from 'echarts';
+// import { ScatterSeriesOption } from 'echarts/charts';
+import { TimeSeriesValueTuple } from '@perses-dev/core';
+import {
+  formatValue,
+  UnitOptions,
+  EChartsDataFormat,
+  EChartsTimeSeries,
+  OPTIMIZED_MODE_SERIES_LIMIT,
+  AnnotationSeries,
+} from '../model';
 import { CursorData } from './tooltip-model';
 
 // increase multipliers to show more series in tooltip
@@ -31,9 +41,17 @@ export interface NearbySeriesInfo {
   formattedY: string;
   isClosestToCursor: boolean;
   seriesType?: 'line' | 'scatter';
+  events?: unknown[];
 }
 
 export type NearbySeriesArray = NearbySeriesInfo[];
+
+/*
+ * Helps determine which type of tooltip to show
+ */
+export function isScatterSeries(series: EChartsTimeSeries): series is AnnotationSeries {
+  return series.type === 'scatter';
+}
 
 /**
  * Returns formatted series data for the points that are close to the user's cursor
@@ -44,7 +62,8 @@ export function checkforNearbySeries(
   pointInGrid: number[],
   yBuffer: number,
   chart?: EChartsInstance,
-  unit?: UnitOptions
+  unit?: UnitOptions,
+  pointInGridEvents?: number[]
 ): NearbySeriesArray {
   const currentNearbySeriesData: NearbySeriesArray = [];
   const cursorX: number | null = pointInGrid[0] ?? null;
@@ -53,6 +72,11 @@ export function checkforNearbySeries(
   if (cursorX === null || cursorY === null) {
     return currentNearbySeriesData;
   }
+
+  // TODO: update with changes from TimeSeriesTooltip/focused-series.ts#L59
+  // keep track of cursor relative to separate events x and y axis
+  const focusedEventsX = pointInGridEvents && Number.isFinite(pointInGridEvents[0]) ? pointInGridEvents[0] : null;
+  const focusedEventsY = pointInGridEvents && Number.isFinite(pointInGridEvents[1]) ? pointInGridEvents[1] : null;
 
   const nearbySeriesIndexes: number[] = [];
   const emphasizedSeriesIndexes: number[] = [];
@@ -63,12 +87,50 @@ export function checkforNearbySeries(
       const currentSeries = data.timeSeries[seriesIdx];
       if (currentNearbySeriesData.length >= OPTIMIZED_MODE_SERIES_LIMIT) break;
       if (currentSeries !== undefined) {
-        const currentSeriesName = currentSeries.name ? currentSeries.name.toString() : '';
-        const markerColor = currentSeries.color ?? '#000';
-        if (Array.isArray(currentSeries.data)) {
-          for (let datumIdx = 0; datumIdx < currentSeries.data.length; datumIdx++) {
+        const currentTimeSeries: EChartsTimeSeries = currentSeries;
+        const currentSeriesName = currentTimeSeries.name ? currentTimeSeries.name.toString() : '';
+        const markerColor = currentTimeSeries.color ?? '#000';
+        /**
+         * When a series is of type 'scatter,' both the type of data available for a tooltip and the means of accessing the x/y values varies.
+         * This is due to utilizing the GraphSeriesValueTuple[] for the 'data' property in scatter series vs EchartsValues[] in line series.
+         */
+        if (currentSeries.type === 'scatter' && focusedEventsX !== null && focusedEventsY !== null) {
+          // events are hard-coded to show at 1 on hidden yAxis
+          if (isScatterSeries(currentTimeSeries)) {
+            const currentEvent = currentTimeSeries.data; // TODO: fix type
+            // eslint-disable-next-line
+            // @ts-ignore
+            const currentEventValue = currentEvent[0].value as unknown as TimeSeriesValueTuple;
+            const xIndex = currentEventValue[0];
+            if (focusedEventsX === xIndex && data.xAxisAlt) {
+              const xValue = data.xAxisAlt[xIndex] ?? 0;
+              const yValue = 0;
+              const formattedY = currentSeries.name?.toString() ?? '';
+              currentNearbySeriesData.push({
+                seriesType: currentSeries.type ?? 'line',
+                seriesIdx: seriesIdx,
+                datumIdx: xIndex,
+                seriesName: currentSeriesName,
+                date: xValue,
+                x: xValue,
+                y: yValue,
+                formattedY: formattedY,
+                markerColor: markerColor.toString(),
+                events: currentEventValue[2],
+                // events: currentEvent[0].value[2] ?? [],
+                isClosestToCursor: false,
+              });
+            }
+          }
+          /**
+           * If data property is an array, it is NOT the object needed for scatter series. Instead,
+           * it is an EChartsValue[]
+           */
+        }
+        if (Array.isArray(currentTimeSeries.data)) {
+          for (let datumIdx = 0; datumIdx < currentTimeSeries.data.length; datumIdx++) {
             const xValue = data.xAxis[datumIdx] ?? 0;
-            const yValue = currentSeries.data[datumIdx];
+            const yValue = currentTimeSeries.data[datumIdx];
             // ensure null values not displayed in tooltip
             if (yValue !== undefined && yValue !== null && cursorX === datumIdx) {
               if (yValue !== '-' && cursorY <= yValue + yBuffer && cursorY >= yValue - yBuffer) {
@@ -196,8 +258,9 @@ export function getNearbySeriesData({
   const pointInPixel = [mousePos.plotCanvas.x ?? 0, mousePos.plotCanvas.y ?? 0];
   if (chart.containPixel('grid', pointInPixel)) {
     const pointInGrid = chart.convertFromPixel('grid', pointInPixel);
+    const pointInGridEvents = chart.convertFromPixel({ xAxisIndex: 1, yAxisIndex: 1 }, pointInPixel);
     if (pointInGrid[0] !== undefined && pointInGrid[1] !== undefined) {
-      return checkforNearbySeries(chartData, pointInGrid, yBuffer, chart, unit);
+      return checkforNearbySeries(chartData, pointInGrid, yBuffer, chart, unit, pointInGridEvents);
     }
   }
 

@@ -38,7 +38,7 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { EChart, MouseEventsParameters, OnEventsType } from '../EChart';
-import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT } from '../model/graph';
+import { EChartsDataFormat } from '../model/graph';
 import { formatValue, UnitOptions } from '../model/units';
 import { useChartsTheme } from '../context/ChartsThemeProvider';
 import { TimeSeriesTooltip } from '../TimeSeriesTooltip';
@@ -73,7 +73,7 @@ export interface LineChartProps {
    */
   height: number;
   data: EChartsDataFormat;
-  yAxis?: YAXisComponentOption;
+  // yAxis?: YAXisComponentOption;
   xAxis?: XAXisComponentOption[];
   unit?: UnitOptions;
   grid?: GridComponentOption;
@@ -89,7 +89,7 @@ export interface LineChartProps {
 export function LineChart({
   height,
   data,
-  yAxis,
+  // yAxis, // TODO: add back
   xAxis,
   unit,
   grid,
@@ -136,7 +136,7 @@ export function LineChart({
       ...clickHandler,
       // TODO: use legendselectchanged event to fix tooltip when legend selected
     };
-  }, [data, onDataZoom, setIsTooltipPinned]);
+  }, [data, onDataZoom, onClick, setIsTooltipPinned]);
 
   if (chartRef.current !== undefined) {
     enableDataZoom(chartRef.current);
@@ -163,14 +163,12 @@ export function LineChart({
     // empty array because a `null` value will throw an error.
     if (data.timeSeries === null || (data.timeSeries.length === 0 && noDataVariant === 'message')) return noDataOption;
 
-    // show symbols and axisPointer dashed line on hover
-    const isOptimizedMode = data.timeSeries.length > OPTIMIZED_MODE_SERIES_LIMIT;
-
     // annotations are plotted on hidden xAxis
     const annotationsPopulated = data.xAxisAlt !== undefined && data.xAxisAlt.length > 0;
 
     // when events are present increase padding above time series data so tooltip less likely to clash
-    const eventsBoundaryOffset = annotationsPopulated ? '50%' : '10%'; // TODO: play around with first value since ideal value depends on data
+    // const eventsBoundaryOffset = annotationsPopulated ? '50%' : '10%'; // TODO: play around with first value since ideal value depends on data
+    const eventsBoundaryOffset = annotationsPopulated ? '90%' : '10%'; // TODO: play around with first value since ideal value depends on data
 
     const yAxisPrimary: YAXisComponentOption = {
       type: 'value',
@@ -184,26 +182,28 @@ export function LineChart({
     };
 
     // Allow support for secondary axis upon which annotations can be displayed. If no annotations are provided, this axis will not be displayed.
-    const yAxisSecondary: YAXisComponentOption = data.xAxisAlt ? {
-      show: false,
-      type: 'value',
-      data: data.timeSeries.reduce<number[]>((accum, series, idx) => {
-        if (series.type === 'line') {
-          accum.push(idx);
+    const yAxisSecondary: YAXisComponentOption = data.xAxisAlt
+      ? {
+          show: false,
+          type: 'value',
+          data: data.timeSeries.reduce<number[]>((accum, series, idx) => {
+            if (series.type === 'line') {
+              accum.push(idx);
+            }
+            return accum;
+          }, []),
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            show: true,
+          },
+          axisLine: {
+            show: false,
+          },
         }
-        return accum;
-      }, []),
-      axisTick: {
-        show: false,
-      },
-      axisLabel: {
-        show: true,
-      },
-      axisLine: {
-        show: false,
-      },
-    } : {}
-    
+      : {};
+
     const rangeMs = data.rangeMs ?? getDateRange(data.xAxis);
 
     const defaultXAxis: XAXisComponentOption = {
@@ -223,11 +223,11 @@ export function LineChart({
       yAxis: [...getYAxes(yAxisPrimary, unit), yAxisSecondary],
       animation: false,
       tooltip: {
-        show: !isOptimizedMode && !annotationsPopulated, // hide axis pointer when events are present or else two dotted lines show
+        show: !annotationsPopulated, // hide axis pointer when events are present or else two dotted lines show
         trigger: 'axis',
         showContent: false, // echarts tooltip content hidden since we use custom tooltip instead
         axisPointer: {
-          type: isOptimizedMode || annotationsPopulated ? 'none' : 'line',
+          type: annotationsPopulated ? 'none' : 'line',
           z: 0, // ensure point symbol shows on top of dashed line
         },
       },
@@ -255,9 +255,9 @@ export function LineChart({
       return __experimentalEChartsOptionsOverride(option);
     }
     return option;
-  }, [data, yAxis, xAxis, unit, grid, legend, noDataOption, timeZone, __experimentalEChartsOptionsOverride, noDataVariant]);
+  }, [data, xAxis, unit, grid, legend, noDataOption, timeZone, __experimentalEChartsOptionsOverride, noDataVariant]);
 
-  console.debug({option})
+  // console.debug({ option });
 
   return (
     <Box
