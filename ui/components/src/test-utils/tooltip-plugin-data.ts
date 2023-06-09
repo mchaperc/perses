@@ -377,7 +377,7 @@ export const tooltipPluginData = {
         },
       ],
       symbolSize: 30,
-      name: 3,
+      name: 3, // TODO: why named 3 instead of a readable name?
       color: '#FFB249',
       labelLine: {
         show: true,
@@ -419,9 +419,9 @@ export const tooltipPluginData = {
         {
           cursor: 'crosshair',
           symbol:
-            'image://data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAADQklEQVR4AbVXTUwTQRR+M9sURCBVocBFaqIXOFgTf4409MTJHuTkoeVu0q54R44myraJ8SjtmQsnuFhS4kkxsR7gookrF0wp2iAglmXHeUt2WdrdnYnB79BOZr6db9+8n3lLQAIJ7WsEjM64oigpQsgYAxIDYJGTVdLg4yow9glMVik/GViU2ZOIBCl0ZwmQ3KmQcEudASuaYJQq6pDuy/JbSM7tZIGwp/KCHi9gmrMr09Gi56rX5Li2rfGFHJwD+D75N2q/6jF/FkmtPs+tzEAAjve2ofH2FdDwRei9lwalux8E8sWy2jflKyxjKYruLM9a/wgUvTIxIxRvtdwRHn9RyxBK5kGA2sIjR9QGivbdf2adQBCYeayuTA/mcUzxJ6FtxQilMyDAr48LbaIInDvYWBY9DoQqMwntZ8QRDkE4zd8nFvSQ2dyH319Wfdf315csjgARajZzjjATBBPiz+YHT2vdL4YcEfjJZtFqmnxeT4mstYS31p1x140EDDx8DdHJl3Dh+pgz3/y+ARLgR23EqUnNhAzb+KE74+74AyuQMKgwnWwc7egyW4HCWIpSQm/KkI/36s6YhLucMWseuDjbIAVe79HHcRmuO3B235UsEZzDSPfiCBAL/UstxugOinAJRKgsU1QcZDkO9+Q+FcPtVz+Ia7aDBhdmuoiFvusYGhXRQOmRFq5SkzGhs9CfocvDIhqEB0dgf2NJyMNuhSqEBLYqh5trcPhtzdpUhA7OQa6wkBBWoQaEqkF+PvhcsTZC/wX5ENcIDy7kulOsFbw862V1YJFW1EsNYrKCFwlz1a6/ePtgqfRDz61Jx1L8989pVsJfK50MGsp7WW1vhGmCUd01MgGdw3fatgoPjkLH1dvWi9op5ZXnaK0JZhHHp42AVsvxblJzE3ffl6wjxItANkftW+qI1/beu+lW4akVNXpWGJGcq+e547PwX8AKZTXqtFXtzd5crciLeBrOFazERTPumbaSWX7MCYwU4PxEC62insIn4n059AeTqGoBaBBgqvt43RB8wmzx6yuUMYGleeDFQFoQCgbs5SvqNd/6QEASvNFP8f40AVbjwPAOt69T3FznZXCVf9AtcsFqkKCNv7EFZVWvAaLUAAAAAElFTkSuQmCC',
+            'image://data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAACtklEQVR4AbVXPW8aQRB9u8IWsiKL1ElBfkEo0ttlQAq2U6YB5w8Y/wKDlMJdsCJTxmfs3mBLQHVxGlxEiklld6GJXAYlDVLgJjMH2GDuuL0EP+kOuJ3dd2/nYwcFA9DJagyRRwk4/XX+uQKFOH/GhsMdvlogfIPGuXpVr5isqYIJl7ZAlBsjCkIbSlmIOIcq2WgjLDGdpYQwH4Jw+gWgCipds2BKTKfJ9/yRw3xQVOn6NoKI6TR1wPcs5gplsfLN8Sd6klSUmpFWvvbx5bsDM1B2uIvTxKw0ixDbW/rUx26thxDIMXlugphOXsb5vmO6gqj98ZNwfUMoN/sIgR03U0bEiOgM3+MmM4VQ1I5Qsnv41SUYIga9lLsjJvNgqlwO1I7wuwscN019zVC0Jao1nSWlGsVN5rhq7YHaJ4+VewnKzd7EywSAi1I0oeFg1XTG+BZbbxdwwJdAVIcKNEeta87k5ya2okiCyg/2lRMivbAiPk6YWG5+/BNos28bRjgfMkIcWItH6RMEUWxfGZHHIiZW474dIeOzA7u1Pl4801iOzjz43HTqzDLYt70jdjkKPPXYK7E1SK8OB5dq+43KItVL70U+vFnAu9cLnmOSXgFFpcXpRJ/9RmWL/Xxbvujj+MLbn5JeJXuGau5WNDR5tipB6XPENXpWnT5i1dc3PuTcImn0oi14+NkroMJCAs0DbenL3NCjairPNdT4dPovEBXUWiM/OCScxSIContOaGMRlnxxidVGRUgLeHCw2mHneduBcENW5Gjbw0OB11bphnXLNzVeTVr8NIN5guiQ/Zodf6Tv26i1enauykXpPVJP4iE5tyck7Wgb/w6Jm+3BWh4cs2a6TaBGlsuqcU/mEhLtwekW1ca5b6YoGMJtkaRbGTQOcobf/WkjqfdceqUK9rqtWYQj/AVOKTMarohEWgAAAABJRU5ErkJggg==',
           itemStyle: {
-            color: '#00D989',
+            color: '#FFB249',
             opacity: 1,
           },
           symbolOffset: [15, 0],
@@ -432,10 +432,11 @@ export const tooltipPluginData = {
         },
         {
           cursor: 'crosshair',
+          // TODO: make icons configurable (ex: Deploy specific icon here)
           symbol:
-            'image://data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAACtklEQVR4AbVXPW8aQRB9u8IWsiKL1ElBfkEo0ttlQAq2U6YB5w8Y/wKDlMJdsCJTxmfs3mBLQHVxGlxEiklld6GJXAYlDVLgJjMH2GDuuL0EP+kOuJ3dd2/nYwcFA9DJagyRRwk4/XX+uQKFOH/GhsMdvlogfIPGuXpVr5isqYIJl7ZAlBsjCkIbSlmIOIcq2WgjLDGdpYQwH4Jw+gWgCipds2BKTKfJ9/yRw3xQVOn6NoKI6TR1wPcs5gplsfLN8Sd6klSUmpFWvvbx5bsDM1B2uIvTxKw0ixDbW/rUx26thxDIMXlugphOXsb5vmO6gqj98ZNwfUMoN/sIgR03U0bEiOgM3+MmM4VQ1I5Qsnv41SUYIga9lLsjJvNgqlwO1I7wuwscN019zVC0Jao1nSWlGsVN5rhq7YHaJ4+VewnKzd7EywSAi1I0oeFg1XTG+BZbbxdwwJdAVIcKNEeta87k5ya2okiCyg/2lRMivbAiPk6YWG5+/BNos28bRjgfMkIcWItH6RMEUWxfGZHHIiZW474dIeOzA7u1Pl4801iOzjz43HTqzDLYt70jdjkKPPXYK7E1SK8OB5dq+43KItVL70U+vFnAu9cLnmOSXgFFpcXpRJ/9RmWL/Xxbvujj+MLbn5JeJXuGau5WNDR5tipB6XPENXpWnT5i1dc3PuTcImn0oi14+NkroMJCAs0DbenL3NCjairPNdT4dPovEBXUWiM/OCScxSIContOaGMRlnxxidVGRUgLeHCw2mHneduBcENW5Gjbw0OB11bphnXLNzVeTVr8NIN5guiQ/Zodf6Tv26i1enauykXpPVJP4iE5tyck7Wgb/w6Jm+3BWh4cs2a6TaBGlsuqcU/mEhLtwekW1ca5b6YoGMJtkaRbGTQOcobf/WkjqfdceqUK9rqtWYQj/AVOKTMarohEWgAAAABJRU5ErkJggg==',
+            'image://data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAADQklEQVR4AbVXTUwTQRR+M9sURCBVocBFaqIXOFgTf4409MTJHuTkoeVu0q54R44myraJ8SjtmQsnuFhS4kkxsR7gookrF0wp2iAglmXHeUt2WdrdnYnB79BOZr6db9+8n3lLQAIJ7WsEjM64oigpQsgYAxIDYJGTVdLg4yow9glMVik/GViU2ZOIBCl0ZwmQ3KmQcEudASuaYJQq6pDuy/JbSM7tZIGwp/KCHi9gmrMr09Gi56rX5Li2rfGFHJwD+D75N2q/6jF/FkmtPs+tzEAAjve2ofH2FdDwRei9lwalux8E8sWy2jflKyxjKYruLM9a/wgUvTIxIxRvtdwRHn9RyxBK5kGA2sIjR9QGivbdf2adQBCYeayuTA/mcUzxJ6FtxQilMyDAr48LbaIInDvYWBY9DoQqMwntZ8QRDkE4zd8nFvSQ2dyH319Wfdf315csjgARajZzjjATBBPiz+YHT2vdL4YcEfjJZtFqmnxeT4mstYS31p1x140EDDx8DdHJl3Dh+pgz3/y+ARLgR23EqUnNhAzb+KE74+74AyuQMKgwnWwc7egyW4HCWIpSQm/KkI/36s6YhLucMWseuDjbIAVe79HHcRmuO3B235UsEZzDSPfiCBAL/UstxugOinAJRKgsU1QcZDkO9+Q+FcPtVz+Ia7aDBhdmuoiFvusYGhXRQOmRFq5SkzGhs9CfocvDIhqEB0dgf2NJyMNuhSqEBLYqh5trcPhtzdpUhA7OQa6wkBBWoQaEqkF+PvhcsTZC/wX5ENcIDy7kulOsFbw862V1YJFW1EsNYrKCFwlz1a6/ePtgqfRDz61Jx1L8989pVsJfK50MGsp7WW1vhGmCUd01MgGdw3fatgoPjkLH1dvWi9op5ZXnaK0JZhHHp42AVsvxblJzE3ffl6wjxItANkftW+qI1/beu+lW4akVNXpWGJGcq+e547PwX8AKZTXqtFXtzd5crciLeBrOFazERTPumbaSWX7MCYwU4PxEC62insIn4n059AeTqGoBaBBgqvt43RB8wmzx6yuUMYGleeDFQFoQCgbs5SvqNd/6QEASvNFP8f40AVbjwPAOt69T3FznZXCVf9AtcsFqkKCNv7EFZVWvAaLUAAAAAElFTkSuQmCC',
           itemStyle: {
-            color: '#FFB249',
+            color: '#438FEB',
             opacity: 1,
           },
           symbolOffset: [0, 0],
@@ -447,7 +448,7 @@ export const tooltipPluginData = {
       ],
       symbolSize: 30,
       name: 3,
-      color: '#00D989',
+      color: '#438FEB',
       labelLine: {
         show: true,
         lineStyle: {
