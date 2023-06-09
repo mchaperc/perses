@@ -41,7 +41,7 @@ import { EChart, MouseEventsParameters, OnEventsType } from '../EChart';
 import { EChartsDataFormat } from '../model/graph';
 import { formatValue, UnitOptions } from '../model/units';
 import { useChartsTheme } from '../context/ChartsThemeProvider';
-import { TimeSeriesTooltip } from '../TimeSeriesTooltip';
+import { TimeSeriesTooltip, TooltipConfig } from '../TimeSeriesTooltip';
 import { useTimeZone } from '../context/TimeZoneProvider';
 import { enableDataZoom, getDateRange, getFormattedDate, getYAxes, restoreChart, ZoomEventData } from './utils';
 
@@ -60,12 +60,6 @@ use([
   CanvasRenderer,
   LabelLayout,
 ]);
-
-export type TooltipConfig = {
-  wrapLabels: boolean;
-  hidden?: boolean;
-  scatterTooltip?: React.ReactElement;
-};
 
 export interface LineChartProps {
   /**
@@ -168,7 +162,7 @@ export function LineChart({
 
     // when events are present increase padding above time series data so tooltip less likely to clash
     // const eventsBoundaryOffset = annotationsPopulated ? '50%' : '10%'; // TODO: play around with first value since ideal value depends on data
-    const eventsBoundaryOffset = annotationsPopulated ? '90%' : '10%'; // TODO: play around with first value since ideal value depends on data
+    const eventsBoundaryOffset = annotationsPopulated ? '190%' : '10%'; // TODO: play around with first value since ideal value depends on data
 
     const yAxisPrimary: YAXisComponentOption = {
       type: 'value',
@@ -257,8 +251,6 @@ export function LineChart({
     return option;
   }, [data, xAxis, unit, grid, legend, noDataOption, timeZone, __experimentalEChartsOptionsOverride, noDataVariant]);
 
-  // console.debug({ option });
-
   return (
     <Box
       sx={{ height }}
@@ -301,7 +293,8 @@ export function LineChart({
             onUnpinClick={() => {
               setIsTooltipPinned(false);
             }}
-            scatterTooltip={tooltipConfig.scatterTooltip}
+            tooltipPlugin={tooltipConfig.plugin}
+            // scatterTooltip={tooltipConfig.scatterTooltip}
           />
         )}
       <EChart

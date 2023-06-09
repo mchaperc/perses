@@ -87,8 +87,10 @@ export function checkforNearbySeries(
       const currentSeries = data.timeSeries[seriesIdx];
       if (currentNearbySeriesData.length >= OPTIMIZED_MODE_SERIES_LIMIT) break;
       if (currentSeries !== undefined) {
-        const currentTimeSeries: EChartsTimeSeries = currentSeries;
-        const currentSeriesName = currentTimeSeries.name ? currentTimeSeries.name.toString() : '';
+        // const currentTimeSeries: EChartsTimeSeries = currentSeries;
+        const currentTimeSeries = currentSeries as EChartsTimeSeries;
+        // const currentSeriesName = currentTimeSeries.name ? currentTimeSeries.name.toString() : '';
+        const currentSeriesName = 'test';
         const markerColor = currentTimeSeries.color ?? '#000';
         /**
          * When a series is of type 'scatter,' both the type of data available for a tooltip and the means of accessing the x/y values varies.
@@ -105,7 +107,7 @@ export function checkforNearbySeries(
             if (focusedEventsX === xIndex && data.xAxisAlt) {
               const xValue = data.xAxisAlt[xIndex] ?? 0;
               const yValue = 0;
-              const formattedY = currentSeries.name?.toString() ?? '';
+              const formattedY = formatValue(yValue, unit);
               currentNearbySeriesData.push({
                 seriesType: currentSeries.type ?? 'line',
                 seriesIdx: seriesIdx,
@@ -115,7 +117,8 @@ export function checkforNearbySeries(
                 x: xValue,
                 y: yValue,
                 formattedY: formattedY,
-                markerColor: markerColor.toString(),
+                // markerColor: markerColor.toString(),
+                markerColor: '#00FFFF', // blue
                 events: currentEventValue[2],
                 // events: currentEvent[0].value[2] ?? [],
                 isClosestToCursor: false,
@@ -166,7 +169,8 @@ export function checkforNearbySeries(
                   x: xValue,
                   y: yValue,
                   formattedY: formattedY,
-                  markerColor: markerColor.toString(),
+                  // markerColor: markerColor.toString(),
+                  markerColor: '#FFFF00', // yellow
                   isClosestToCursor,
                 });
                 nearbySeriesIndexes.push(seriesIdx);

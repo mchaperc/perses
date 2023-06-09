@@ -161,11 +161,13 @@ export function convertPercentThreshold(percent: number, data: EChartsTimeSeries
 function findMax(timeSeries: EChartsTimeSeries[]) {
   let max = 0;
   timeSeries.forEach((series) => {
-    series.data.forEach((value: EChartsValues) => {
-      if (typeof value === 'number' && value > max) {
-        max = value;
-      }
-    });
+    if (series.data) {
+      series.data.forEach((value: EChartsValues) => {
+        if (typeof value === 'number' && value > max) {
+          max = value;
+        }
+      });
+    }
   });
   return max;
 }

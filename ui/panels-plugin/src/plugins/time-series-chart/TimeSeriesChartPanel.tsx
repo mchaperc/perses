@@ -286,10 +286,10 @@ export function TimeSeriesChartPanel(props: TimeSeriesChartProps) {
               <LineChart
                 height={height}
                 data={graphData}
-                yAxis={echartsYAxis}
+                // yAxis={echartsYAxis}
                 unit={unit}
                 grid={gridOverrides}
-                tooltipConfig={{ wrapLabels: true, scatterTooltip: AnnotationTooltip }}
+                // tooltipConfig={{ wrapLabels: true, scatterTooltip: AnnotationTooltip }}
                 onDataZoom={handleDataZoom}
               />
             </Box>

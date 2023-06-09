@@ -27,8 +27,15 @@ export interface GraphSeries {
 }
 
 export type EChartsValues = number | null | '-';
+// data?: (LineDataValue | LineDataItemOption)[];
+export type LineSeriesData = LineSeriesOption['data'];
 
+// export type LineChartSupportedSeriesTypes = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
 export type EChartsTimeSeries = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
+// // export interface PersesTimeSeries extends EChartsTimeSeries {
+// export interface EChartsTimeSeries extends LineChartSupportedSeriesTypes {
+//   data?: EChartsValues[];
+// }
 
 export type EChartsDataFormat = {
   timeSeries: EChartsTimeSeries[];

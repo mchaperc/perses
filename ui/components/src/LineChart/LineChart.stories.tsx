@@ -12,7 +12,7 @@
 // limitations under the License.
 
 import { StoryObj, Meta } from '@storybook/react';
-import { LineChart, NearbySeriesArray, AnnotationTooltip } from '@perses-dev/components';
+import { LineChart, NearbySeriesArray, AnnotationTooltip, AnnotationTooltipProps } from '@perses-dev/components';
 import { waitForStableCanvas } from '@perses-dev/storybook';
 import { Stack, Typography } from '@mui/material';
 import { string } from 'mathjs';
@@ -122,17 +122,22 @@ const WITH_ANNOTATIONS_CHART_HEIGHT = 300;
 const WITH_ANNOTATIONS_LABEL_DISTANCE =
   WITH_ANNOTATIONS_CHART_HEIGHT - 41 - WITH_ANNOTATIONS_GRID.top - WITH_ANNOTATIONS_GRID.bottom;
 
-// function ScatterTooltip(props: { focusedSeries?: NearbySeriesArray }) {
-//   if (!props.focusedSeries) return null;
-//   return <div>Scatter Tooltip</div>;
+// function ExampleTooltipPlugin(props: AnnotationTooltipProps) {
+//   return <AnnotationTooltip {...props} />;
 // }
+function ExampleTooltipPluginOverride() {
+  return <p>ExampleTooltipPluginOverride</p>;
+}
 
 export const WithAnnotations: Story = {
   args: {
     tooltipConfig: {
       wrapLabels: true,
-      scatterTooltip: <AnnotationTooltip />,
-      // scatterTooltip: <ScatterTooltip />,
+      plugin: {
+        seriesTypeTrigger: 'scatter',
+        tooltipOverride: <ExampleTooltipPluginOverride />,
+      },
+      // scatterTooltip: <ExampleTooltipPlugin />,
     },
     data: {
       timeSeries: [

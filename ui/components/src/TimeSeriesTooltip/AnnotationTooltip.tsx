@@ -26,7 +26,7 @@ export function AnnotationTooltip({ series, cursorTransform }: AnnotationTooltip
 
         return (
           <Box key={key}>
-            <Typography>Annotation</Typography>
+            <Typography>Annotation 01</Typography>
             <SeriesInfo
               key={key}
               seriesName={seriesName}

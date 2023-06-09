@@ -17,6 +17,7 @@ import React, { useMemo, useState, cloneElement } from 'react';
 import useResizeObserver from 'use-resize-observer';
 import { EChartsDataFormat, UnitOptions } from '../model';
 import { TooltipContent } from './TooltipContent';
+import { TooltipPluginContent, TooltipPluginProps } from './TooltipPlugin';
 import { getNearbySeriesData, NearbySeriesArray } from './nearby-series';
 import {
   CursorCoordinates,
@@ -34,7 +35,8 @@ interface TimeSeriesTooltipProps {
   isTooltipPinned: boolean;
   wrapLabels?: boolean;
   unit?: UnitOptions;
-  scatterTooltip?: React.ReactElement;
+  tooltipPlugin?: TooltipPluginProps;
+  // scatterTooltip?: React.ReactElement;
   onUnpinClick?: () => void;
 }
 
@@ -44,7 +46,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
   wrapLabels,
   isTooltipPinned,
   unit,
-  scatterTooltip,
+  tooltipPlugin,
   onUnpinClick,
 }: TimeSeriesTooltipProps) {
   const [showAllSeries, setShowAllSeries] = useState(false);
@@ -62,7 +64,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
   const cursorTransform = assembleTransform(mousePos, chartWidth, pinnedPos, height ?? 0, width ?? 0);
 
   // Get series nearby the cursor and pass into tooltip content children.
-  const focusedSeries = getNearbySeriesData({
+  const nearbySeries = getNearbySeriesData({
     mousePos,
     chartData,
     pinnedPos,
@@ -71,21 +73,22 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     showAllSeries,
   });
 
-  if (focusedSeries.length === 0) {
+  if (nearbySeries.length === 0) {
     return null;
   }
 
-  // If the user has provided a custom scatter tooltip, use it when focused series are all scatter.
-  if (scatterTooltip) {
-    const clonedScatterTooltip = cloneElement(scatterTooltip, {
-      series: focusedSeries,
-      cursorTransform: cursorTransform,
-    });
-    // const clonedScatterTooltip = cloneElement(scatterTooltip, { focusedSeries });
-    const isScatter = focusedSeries?.every((series) => series.seriesType === 'scatter');
-    if (isScatter && focusedSeries !== null) {
-      console.log('isScatter!!!');
-      return clonedScatterTooltip;
+  // If the user has provided a custom tooltipPlugin check whether to render it instead of default TooltipContent
+  if (tooltipPlugin && nearbySeries !== null) {
+    // Use the tooltip plugin if nearby series are all match desired series type ('scatter', 'line', 'bar')
+    const isActive = nearbySeries?.every((series) => series.seriesType === tooltipPlugin.seriesTypeTrigger);
+    if (isActive) {
+      return (
+        <TooltipPluginContent
+          tooltipOverride={tooltipPlugin.tooltipOverride}
+          series={nearbySeries}
+          cursorTransform={cursorTransform}
+        />
+      );
     }
   }
 
@@ -99,7 +102,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     isTooltipPinned === true &&
     showAllSeries === false &&
     chartData.timeSeries.length > 1 &&
-    focusedSeries.length !== chartData.timeSeries.length;
+    nearbySeries.length !== chartData.timeSeries.length;
 
   return (
     <Portal>
@@ -111,7 +114,7 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
         }}
       >
         <TooltipContent
-          series={focusedSeries}
+          series={nearbySeries}
           wrapLabels={wrapLabels}
           isTooltipPinned={isTooltipPinned}
           onUnpinClick={() => {
