@@ -73,8 +73,7 @@ export function checkforNearbySeries(
       if (currentSeries !== undefined) {
         // const currentTimeSeries: EChartsTimeSeries = currentSeries;
         const currentTimeSeries = currentSeries as EChartsTimeSeries;
-        // const currentSeriesName = currentTimeSeries.name ? currentTimeSeries.name.toString() : '';
-        const currentSeriesName = 'test';
+        const currentSeriesName = currentTimeSeries.name ? currentTimeSeries.name.toString() : '';
         const markerColor = currentTimeSeries.color ?? '#000';
         /**
          * When a series is of type 'scatter,' both the type of data available for a tooltip and the means of accessing the x/y values varies.
@@ -101,8 +100,7 @@ export function checkforNearbySeries(
                 x: xValue,
                 y: yValue,
                 formattedY: formattedY,
-                // markerColor: markerColor.toString(),
-                markerColor: '#00FFFF', // blue
+                markerColor: markerColor.toString(),
                 events: currentEventValue[2],
                 // events: currentEvent[0].value[2] ?? [],
                 isClosestToCursor: false,
@@ -153,8 +151,7 @@ export function checkforNearbySeries(
                   x: xValue,
                   y: yValue,
                   formattedY: formattedY,
-                  // markerColor: markerColor.toString(),
-                  markerColor: '#FFFF00', // yellow
+                  markerColor: markerColor.toString(),
                   isClosestToCursor,
                 });
                 nearbySeriesIndexes.push(seriesIdx);

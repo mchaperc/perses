@@ -134,7 +134,6 @@ export function LineChart({
         }
       },
       ...clickHandler,
-      // TODO: use legendselectchanged event to fix tooltip when legend selected
     };
   }, [data, onDataZoom, onClick, setTooltipPinnedCoords]);
 
@@ -169,7 +168,8 @@ export function LineChart({
       },
     };
 
-    // Allow support for secondary axis upon which annotations can be displayed. If no annotations are provided, this axis will not be displayed.
+    // Allow support for secondary axis upon which annotations can be displayed.
+    // If no annotations are provided, this axis will not be displayed.
     const yAxisSecondary: YAXisComponentOption = data.xAxisAlt
       ? {
           show: false,
