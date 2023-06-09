@@ -17,6 +17,6 @@ import { UnixTimeMs } from './time';
 
 export type TimeSeriesQueryDefinition<PluginSpec = UnknownSpec> = QueryDefinition<'TimeSeriesQuery', PluginSpec>;
 
-export type TimeSeriesValueTuple = [timestamp: UnixTimeMs, value: number | null, annotations?: unknown[]];
+export type TimeSeriesValueTuple = [timestamp: UnixTimeMs, value: number | null];
 
 export type Labels = Record<string, string>;

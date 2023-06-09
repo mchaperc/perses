@@ -30,11 +30,16 @@ export type EChartsValues = number | null | '-';
 // data?: (LineDataValue | LineDataItemOption)[];
 export type LineSeriesData = LineSeriesOption['data'];
 
-export type LineChartSupportedSeriesTypes = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
-// export type EChartsTimeSeries = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
-// // export interface PersesTimeSeries extends EChartsTimeSeries {
-export interface EChartsTimeSeries extends LineChartSupportedSeriesTypes {
-  data?: EChartsValues[];
+// export type LineChartSupportedSeriesTypes = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
+// export interface EChartsTimeSeries extends LineChartSupportedSeriesTypes {
+//   data?: EChartsValues[] | AnnotationSeries;
+//   annotations?: unknown[];
+// }
+
+export interface EChartsTimeSeries extends Omit<LineSeriesOption, 'data' | 'type'> {
+  data: EChartsValues[] | AnnotationSeriesData;
+  type?: 'line' | 'scatter' | 'bar';
+  annotations?: unknown[];
 }
 
 export type EChartsDataFormat = {
@@ -46,4 +51,22 @@ export type EChartsDataFormat = {
   rangeMs?: number;
 };
 
-export type AnnotationSeries = ComposeOption<ScatterSeriesOption>;
+// export type AnnotationSeries = ComposeOption<ScatterSeriesOption>;
+
+// export interface AnnotationSeries extends EChartsTimeSeries {
+export interface AnnotationSeriesDatum extends ScatterSeriesOption {
+  // symbol?: string;
+  // symbolOffset?: number[];
+  // labelLine?: {
+  //   show?: boolean;
+  // };
+  // itemStyle?: {
+  //   color?: string;
+  // };
+  value: TimeSeriesValueTuple;
+  categoryColor?: string;
+}
+
+export type AnnotationSeriesData = AnnotationSeriesDatum[];
+
+// export type CustomSeriesData = CustomSeriesDatum[];

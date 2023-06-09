@@ -158,20 +158,18 @@ export function convertPercentThreshold(percent: number, data: EChartsTimeSeries
   return percentDecimal * total + adjustedMin;
 }
 
+// TODO: confirm this still works in thresholds editor
 function findMax(timeSeries: EChartsTimeSeries[]) {
   let max = 0;
   timeSeries.forEach((series) => {
-    if (series.data) {
-      series.data.forEach((value: EChartsValues) => {
-        if (typeof value === 'number' && value > max) {
-          max = value;
-        }
-      });
-    }
+    series.data.forEach((value) => {
+      if (typeof value === 'number' && value > max) {
+        max = value;
+      }
+    });
   });
   return max;
 }
-
 /**
  * Converts Perses panel y_axis from dashboard spec to ECharts supported yAxis options
  */
