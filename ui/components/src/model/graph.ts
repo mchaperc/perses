@@ -14,7 +14,7 @@
 import { TimeSeriesValueTuple } from '@perses-dev/core';
 import { ComposeOption } from 'echarts';
 import { LineSeriesOption, ScatterSeriesOption } from 'echarts/charts';
-import { LegendItem } from './legend';
+import { LegendItem } from '../Legend';
 
 // adjust display when there are many time series to help with performance
 export const OPTIMIZED_MODE_SERIES_LIMIT = 1000;
@@ -30,12 +30,12 @@ export type EChartsValues = number | null | '-';
 // data?: (LineDataValue | LineDataItemOption)[];
 export type LineSeriesData = LineSeriesOption['data'];
 
-// export type LineChartSupportedSeriesTypes = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
-export type EChartsTimeSeries = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
+export type LineChartSupportedSeriesTypes = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
+// export type EChartsTimeSeries = ComposeOption<LineSeriesOption | ScatterSeriesOption>;
 // // export interface PersesTimeSeries extends EChartsTimeSeries {
-// export interface EChartsTimeSeries extends LineChartSupportedSeriesTypes {
-//   data?: EChartsValues[];
-// }
+export interface EChartsTimeSeries extends LineChartSupportedSeriesTypes {
+  data?: EChartsValues[];
+}
 
 export type EChartsDataFormat = {
   timeSeries: EChartsTimeSeries[];

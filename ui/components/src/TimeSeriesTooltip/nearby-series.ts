@@ -12,18 +12,9 @@
 // limitations under the License.
 
 import { ECharts as EChartsInstance } from 'echarts/core';
-// import { ComposeOption } from 'echarts';
-// import { ScatterSeriesOption } from 'echarts/charts';
-import { TimeSeriesValueTuple } from '@perses-dev/core';
-import {
-  formatValue,
-  UnitOptions,
-  EChartsDataFormat,
-  EChartsTimeSeries,
-  OPTIMIZED_MODE_SERIES_LIMIT,
-  AnnotationSeries,
-} from '../model';
-import { CursorData } from './tooltip-model';
+import { formatValue, UnitOptions, EChartsDataFormat, EChartsTimeSeries, OPTIMIZED_MODE_SERIES_LIMIT } from '../model';
+import { CursorCoordinates, CursorData } from './tooltip-model';
+import { isScatterSeries } from './TooltipPlugin';
 
 // increase multipliers to show more series in tooltip
 export const INCREASE_NEARBY_SERIES_MULTIPLIER = 5.5; // adjusts how many series show in tooltip (higher == more series shown)
@@ -45,13 +36,6 @@ export interface NearbySeriesInfo {
 }
 
 export type NearbySeriesArray = NearbySeriesInfo[];
-
-/*
- * Helps determine which type of tooltip to show
- */
-export function isScatterSeries(series: EChartsTimeSeries): series is AnnotationSeries {
-  return series.type === 'scatter';
-}
 
 /**
  * Returns formatted series data for the points that are close to the user's cursor
@@ -195,14 +179,16 @@ export function checkforNearbySeries(
       chart.dispatchAction({
         type: 'highlight',
         seriesIndex: emphasizedSeriesIndexes,
-        notBlur: false,
+        notBlur: false, // ensure blur IS triggered, this is default but setting so it is explicit
+        escapeConnect: true, // shared crosshair should not emphasize series on adjacent charts
       });
     } else {
       // When no emphasized series with bold text, notBlur allows opacity fadeout to not trigger.
       chart.dispatchAction({
         type: 'highlight',
         seriesIndex: nearbySeriesIndexes,
-        notBlur: true,
+        notBlur: true, // do not trigger blur state when cursor is not immediately close to any series
+        escapeConnect: true, // shared crosshair should not emphasize series on adjacent charts
       });
     }
   }
@@ -223,7 +209,7 @@ export function getNearbySeriesData({
   showAllSeries = false,
 }: {
   mousePos: CursorData['coords'];
-  pinnedPos: CursorData['coords'];
+  pinnedPos: CursorCoordinates | null;
   chartData: EChartsDataFormat;
   chart?: EChartsInstance;
   unit?: UnitOptions;
@@ -231,7 +217,7 @@ export function getNearbySeriesData({
 }) {
   if (chart === undefined || mousePos === null) return [];
 
-  // prevents multiple tooltips showing from adjacent charts
+  // prevents multiple tooltips showing from adjacent charts unless tooltip is pinned
   let cursorTargetMatchesChart = false;
   if (mousePos.target !== null) {
     const currentParent = (<HTMLElement>mousePos.target).parentElement;
@@ -246,7 +232,7 @@ export function getNearbySeriesData({
     }
   }
 
-  // allows moving cursor inside tooltip
+  // allows moving cursor inside tooltip without it fading away
   if (pinnedPos !== null) {
     mousePos = pinnedPos;
     cursorTargetMatchesChart = true;

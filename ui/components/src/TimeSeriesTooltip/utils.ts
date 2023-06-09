@@ -19,6 +19,7 @@ import {
   TOOLTIP_MAX_HEIGHT,
   TOOLTIP_MIN_WIDTH,
   TOOLTIP_ADJUST_Y_POS_MULTIPLIER,
+  TOOLTIP_BG_COLOR_FALLBACK,
 } from './tooltip-model';
 
 /**
@@ -35,12 +36,12 @@ export function assembleTransform(
     return 'translate3d(0, 0)';
   }
 
+  const cursorPaddingX = 32;
+  const cursorPaddingY = 16;
+
   if (pinnedPos !== null) {
     mousePos = pinnedPos;
   }
-
-  const cursorPaddingX = 32;
-  const cursorPaddingY = 16;
 
   // Tooltip is located in a Portal attached to the body.
   // Using page coordinates instead of viewport ensures the tooltip is
@@ -71,11 +72,11 @@ export function getTooltipStyles(theme: Theme) {
     minWidth: TOOLTIP_MIN_WIDTH,
     maxWidth: TOOLTIP_MAX_WIDTH,
     maxHeight: TOOLTIP_MAX_HEIGHT,
-    padding: theme.spacing(0.5, 2),
+    padding: 0,
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: '#2E313E', // TODO: use colors from theme, separate styles for dark mode
+    backgroundColor: theme.palette.designSystem?.grey[800] ?? TOOLTIP_BG_COLOR_FALLBACK,
     borderRadius: '6px',
     color: '#fff',
     fontSize: '11px',

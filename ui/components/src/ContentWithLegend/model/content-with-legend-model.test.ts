@@ -11,7 +11,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ContentWithLegendLayoutOpts, getContentWithLegendLayout } from './content-with-legend-model';
+import { createTheme } from '@mui/material';
+import { legendModes } from '@perses-dev/core';
+import {
+  ContentWithLegendLayoutOpts,
+  TABLE_LEGEND_SIZE,
+  getContentWithLegendLayout,
+} from './content-with-legend-model';
+
+const mockMuiTheme = createTheme({});
 
 describe('getContentWithLegendLayout', () => {
   describe('without legend options', () => {
@@ -21,6 +29,7 @@ describe('getContentWithLegendLayout', () => {
       spacing: 0,
       minChildrenWidth: 0,
       minChildrenHeight: 0,
+      theme: mockMuiTheme,
     };
 
     test('does not show legend', () => {
@@ -36,33 +45,148 @@ describe('getContentWithLegendLayout', () => {
     });
   });
 
-  describe('with right oriented legend', () => {
-    describe('with spacing', () => {
-      const layoutOpts: ContentWithLegendLayoutOpts = {
-        width: 800,
-        height: 500,
-        spacing: 10,
-        minChildrenWidth: 0,
-        minChildrenHeight: 0,
-        legendOptions: {
-          position: 'Right',
-        },
-      };
+  describe.each(legendModes)('%s mode legend', (mode) => {
+    describe('with right oriented legend', () => {
+      describe('with spacing', () => {
+        const layoutOpts: ContentWithLegendLayoutOpts = {
+          width: 800,
+          height: 500,
+          spacing: 10,
+          minChildrenWidth: 0,
+          minChildrenHeight: 0,
+          legendProps: {
+            options: {
+              position: 'Right',
+              mode: mode,
+            },
+            data: [],
+            selectedItems: 'ALL',
+            onSelectedItemsChange: jest.fn(),
+          },
+          theme: mockMuiTheme,
+        };
 
-      test('shows legend', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.legend.show).toBeTruthy();
+        test('shows legend', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.legend.show).toBeTruthy();
+        });
+
+        test('lays out the content, spacing, and legend horizontally', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.width + layout.margin.right + layout.legend.width).toEqual(layoutOpts.width);
+        });
+
+        test('content and legend use full height', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.height).toEqual(layoutOpts.height);
+          expect(layout.legend.height).toEqual(layoutOpts.height);
+        });
       });
 
-      test('lays out the content, spacing, and legend horizontally', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.width + layout.margin.right + layout.legend.width).toEqual(layoutOpts.width);
+      describe('without spacing', () => {
+        const layoutOpts: ContentWithLegendLayoutOpts = {
+          width: 800,
+          height: 500,
+          spacing: 0,
+          minChildrenWidth: 0,
+          minChildrenHeight: 0,
+          legendProps: {
+            options: {
+              position: 'Right',
+              mode: mode,
+            },
+            data: [],
+            selectedItems: 'ALL',
+            onSelectedItemsChange: jest.fn(),
+          },
+          theme: mockMuiTheme,
+        };
+
+        test('shows legend', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.legend.show).toBeTruthy();
+        });
+
+        test('lays out the content, spacing, and legend horizontally', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.width + layout.legend.width).toEqual(layoutOpts.width);
+        });
+
+        test('content and legend use full height', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.height).toEqual(layoutOpts.height);
+          expect(layout.legend.height).toEqual(layoutOpts.height);
+        });
       });
 
-      test('content and legend use full height', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.height).toEqual(layoutOpts.height);
-        expect(layout.legend.height).toEqual(layoutOpts.height);
+      describe('without enough horizontal space for the legend', () => {
+        const layoutOpts: ContentWithLegendLayoutOpts = {
+          width: 200,
+          height: 500,
+          spacing: 10,
+          minChildrenWidth: 200,
+          minChildrenHeight: 0,
+          legendProps: {
+            options: {
+              position: 'Right',
+              mode: mode,
+            },
+            data: [],
+            selectedItems: 'ALL',
+            onSelectedItemsChange: jest.fn(),
+          },
+          theme: mockMuiTheme,
+        };
+
+        test('does not show legend', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.legend.show).toBeFalsy();
+        });
+
+        test('gives content full width and height without a margin', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.width).toEqual(layoutOpts.width);
+          expect(layout.content.height).toEqual(layoutOpts.height);
+          expect(layout.margin).toEqual({ bottom: 0, right: 0 });
+        });
+      });
+    });
+
+    describe('with bottom oriented legend', () => {
+      describe('with spacing', () => {
+        const layoutOpts: ContentWithLegendLayoutOpts = {
+          width: 800,
+          height: 500,
+          spacing: 15,
+          minChildrenWidth: 0,
+          minChildrenHeight: 0,
+          legendProps: {
+            options: {
+              position: 'Bottom',
+              mode: mode,
+            },
+            data: [],
+            selectedItems: 'ALL',
+            onSelectedItemsChange: jest.fn(),
+          },
+          theme: mockMuiTheme,
+        };
+
+        test('shows legend', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.legend.show).toBeTruthy();
+        });
+
+        test('lays out the content, spacing, and legend vertically', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.height + layout.margin.bottom + layout.legend.height).toEqual(layoutOpts.height);
+        });
+
+        test('content and legend use full width', () => {
+          const layout = getContentWithLegendLayout(layoutOpts);
+          expect(layout.content.width).toEqual(layoutOpts.width);
+          expect(layout.legend.width).toEqual(layoutOpts.width);
+        });
       });
     });
 
@@ -73,94 +197,16 @@ describe('getContentWithLegendLayout', () => {
         spacing: 0,
         minChildrenWidth: 0,
         minChildrenHeight: 0,
-        legendOptions: {
-          position: 'Right',
+        legendProps: {
+          options: {
+            position: 'Bottom',
+            mode: mode,
+          },
+          data: [],
+          selectedItems: 'ALL',
+          onSelectedItemsChange: jest.fn(),
         },
-      };
-
-      test('shows legend', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.legend.show).toBeTruthy();
-      });
-
-      test('lays out the content, spacing, and legend horizontally', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.width + layout.legend.width).toEqual(layoutOpts.width);
-      });
-
-      test('content and legend use full height', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.height).toEqual(layoutOpts.height);
-        expect(layout.legend.height).toEqual(layoutOpts.height);
-      });
-    });
-
-    describe('without enough horizontal space for the legend', () => {
-      const layoutOpts: ContentWithLegendLayoutOpts = {
-        width: 200,
-        height: 500,
-        spacing: 10,
-        minChildrenWidth: 200,
-        minChildrenHeight: 0,
-        legendOptions: {
-          position: 'Right',
-        },
-      };
-
-      test('does not show legend', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.legend.show).toBeFalsy();
-      });
-
-      test('gives content full width and height without a margin', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.width).toEqual(layoutOpts.width);
-        expect(layout.content.height).toEqual(layoutOpts.height);
-        expect(layout.margin).toEqual({ bottom: 0, right: 0 });
-      });
-    });
-  });
-
-  describe('with bottom oriented legend', () => {
-    describe('with spacing', () => {
-      const layoutOpts: ContentWithLegendLayoutOpts = {
-        width: 800,
-        height: 500,
-        spacing: 15,
-        minChildrenWidth: 0,
-        minChildrenHeight: 0,
-        legendOptions: {
-          position: 'Bottom',
-        },
-      };
-
-      test('shows legend', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.legend.show).toBeTruthy();
-      });
-
-      test('lays out the content, spacing, and legend vertically', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.height + layout.margin.bottom + layout.legend.height).toEqual(layoutOpts.height);
-      });
-
-      test('content and legend use full width', () => {
-        const layout = getContentWithLegendLayout(layoutOpts);
-        expect(layout.content.width).toEqual(layoutOpts.width);
-        expect(layout.legend.width).toEqual(layoutOpts.width);
-      });
-    });
-
-    describe('without spacing', () => {
-      const layoutOpts: ContentWithLegendLayoutOpts = {
-        width: 800,
-        height: 500,
-        spacing: 0,
-        minChildrenWidth: 0,
-        minChildrenHeight: 0,
-        legendOptions: {
-          position: 'Bottom',
-        },
+        theme: mockMuiTheme,
       };
 
       test('shows legend', () => {
@@ -187,9 +233,16 @@ describe('getContentWithLegendLayout', () => {
         spacing: 10,
         minChildrenWidth: 0,
         minChildrenHeight: 100,
-        legendOptions: {
-          position: 'Bottom',
+        legendProps: {
+          options: {
+            position: 'Bottom',
+            mode: mode,
+          },
+          data: [],
+          selectedItems: 'ALL',
+          onSelectedItemsChange: jest.fn(),
         },
+        theme: mockMuiTheme,
       };
 
       test('does not show legend', () => {
@@ -203,6 +256,55 @@ describe('getContentWithLegendLayout', () => {
         expect(layout.content.height).toEqual(layoutOpts.height);
         expect(layout.margin).toEqual({ bottom: 0, right: 0 });
       });
+    });
+  });
+
+  describe('right positioned table legend with additional columns', () => {
+    const layoutOpts: ContentWithLegendLayoutOpts = {
+      width: 800,
+      height: 500,
+      spacing: 0,
+      minChildrenWidth: 0,
+      minChildrenHeight: 0,
+      legendProps: {
+        options: {
+          position: 'Right',
+          mode: 'Table',
+        },
+        tableProps: {
+          columns: [
+            {
+              header: 'col 1',
+              accessorKey: 'data.col1',
+              width: 20,
+            },
+            {
+              header: 'col 1',
+              accessorKey: 'data.col1',
+              width: 30,
+            },
+          ],
+        },
+        data: [],
+        selectedItems: 'ALL',
+        onSelectedItemsChange: jest.fn(),
+      },
+      theme: mockMuiTheme,
+    };
+
+    test('shows legend', () => {
+      const layout = getContentWithLegendLayout(layoutOpts);
+      expect(layout.legend.show).toBeTruthy();
+    });
+
+    test('lays out the content, spacing, and legend horizontally', () => {
+      const layout = getContentWithLegendLayout(layoutOpts);
+      expect(layout.content.width + layout.legend.width).toEqual(layoutOpts.width);
+    });
+
+    test('legend width accounts for columns', () => {
+      const layout = getContentWithLegendLayout(layoutOpts);
+      expect(layout.legend.width).toEqual(TABLE_LEGEND_SIZE['Right'] + 50);
     });
   });
 });

@@ -67,7 +67,7 @@ export function getLineSeries(
   const pointRadius = visual.point_radius ?? DEFAULT_POINT_RADIUS;
 
   // Shows datapoint symbols when selected time range is roughly 15 minutes or less
-  let showPoints = data.length <= HIDE_DATAPOINTS_LIMIT;
+  let showPoints = data && data.length <= HIDE_DATAPOINTS_LIMIT;
   // Allows overriding default behavior and opt-in to always show all symbols (can hurt performance)
   if (visual.show_points === 'Always') {
     showPoints = true;

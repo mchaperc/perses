@@ -13,6 +13,7 @@
 
 import { ReactElement, cloneElement } from 'react';
 import { Box, Typography } from '@mui/material';
+import { EChartsTimeSeries, AnnotationSeries } from '.././model';
 import { NearbySeriesArray } from './nearby-series';
 import { SeriesInfo } from './SeriesInfo';
 import { getTooltipStyles } from './utils';
@@ -32,6 +33,10 @@ export interface TooltipPluginContentProps {
   tooltipOverride?: ReactElement;
   series: NearbySeriesArray | null;
   cursorTransform: string;
+}
+
+export function isScatterSeries(series: EChartsTimeSeries): series is AnnotationSeries {
+  return series.type === 'scatter';
 }
 
 export function TooltipPluginContent({ tooltipOverride, series, cursorTransform }: TooltipPluginContentProps) {

@@ -13,11 +13,11 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LegendOptions } from '../model';
+import { LegendSpecOptions } from '../../model';
 import { LegendOptionsEditor } from './LegendOptionsEditor';
 
 describe('LegendOptionsEditor', () => {
-  const renderLegendOptionsEditor = (value?: LegendOptions, onChange = jest.fn()) => {
+  const renderLegendOptionsEditor = (value?: LegendSpecOptions, onChange = jest.fn()) => {
     render(
       <div>
         <LegendOptionsEditor value={value} onChange={onChange} />
@@ -31,6 +31,10 @@ describe('LegendOptionsEditor', () => {
 
   const getLegendPositionSelector = () => {
     return screen.getByRole('combobox', { name: 'Position' });
+  };
+
+  const getLegendModeSelector = () => {
+    return screen.getByRole('combobox', { name: 'Mode' });
   };
 
   it('can change legend visibility by clicking', () => {
@@ -51,5 +55,17 @@ describe('LegendOptionsEditor', () => {
     });
     userEvent.click(positionRightOption);
     expect(onChange).toHaveBeenCalledWith({ position: 'Right' });
+  });
+
+  it('should allow changing legend mode', () => {
+    const onChange = jest.fn();
+    renderLegendOptionsEditor({ position: 'Bottom', mode: 'List' }, onChange);
+    expect(getLegendModeSelector()).toBeEnabled();
+    userEvent.click(getLegendModeSelector());
+    const tableModeOption = screen.getByRole('option', {
+      name: 'Table',
+    });
+    userEvent.click(tableModeOption);
+    expect(onChange).toHaveBeenCalledWith({ position: 'Bottom', mode: 'Table' });
   });
 });

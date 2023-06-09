@@ -31,9 +31,9 @@ export interface SaveDashboardButtonProps extends Pick<ButtonProps, 'fullWidth'>
 
 export const SaveDashboardButton = ({ onSave, isDisabled, variant = 'contained' }: SaveDashboardButtonProps) => {
   const [isSavingDashboard, setSavingDashboard] = useState<boolean>(false);
-  const { dashboard } = useDashboard();
+  const { dashboard, setDashboard } = useDashboard();
   const { getSavedVariablesStatus, setVariableDefaultValues } = useTemplateVariableActions();
-  const isSavedVariableModified = getSavedVariablesStatus();
+  const { isSavedVariableModified } = getSavedVariablesStatus();
   const { timeRange } = useTimeRange();
   const { setEditMode } = useEditMode();
   const { openSaveChangesConfirmationDialog, closeSaveChangesConfirmationDialog } = useSaveChangesConfirmationDialog();
@@ -53,29 +53,34 @@ export const SaveDashboardButton = ({ onSave, isDisabled, variant = 'contained' 
             const variables = setVariableDefaultValues();
             dashboard.spec.variables = variables;
           }
+          setDashboard(dashboard);
           saveDashboard();
         },
         onCancel: () => {
           closeSaveChangesConfirmationDialog();
         },
+        isSavedDurationModified,
+        isSavedVariableModified,
       });
     } else {
       saveDashboard();
     }
   };
 
-  const saveDashboard = () => {
-    if (onSave !== undefined) {
-      setSavingDashboard(true);
-      onSave(dashboard)
-        .then(() => {
+  const saveDashboard = async () => {
+    if (onSave) {
+      try {
+        setSavingDashboard(true);
+        await onSave(dashboard);
+        closeSaveChangesConfirmationDialog();
+        setEditMode(false);
+      } catch (error) {
+        throw new Error(`An error occurred while saving the dashboard. ${error}`);
+      } finally {
+        if (isSavingDashboard) {
           setSavingDashboard(false);
-          closeSaveChangesConfirmationDialog();
-          setEditMode(false);
-        })
-        .catch(() => {
-          setSavingDashboard(false);
-        });
+        }
+      }
     } else {
       setEditMode(false);
     }

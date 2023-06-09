@@ -12,15 +12,13 @@
 // limitations under the License.
 
 import { useState } from 'react';
-import { merge } from 'lodash-es';
-import { useDeepMemo, StepOptions, getXValues, getYValues, TimeSeries } from '@perses-dev/core';
-import { PanelProps, useDataQueries, useTimeRange } from '@perses-dev/plugin-system';
+import merge from 'lodash/merge';
+import { useDeepMemo, StepOptions, getXValues, getYValues, TimeSeries, DEFAULT_LEGEND } from '@perses-dev/core';
+import { PanelProps, useDataQueries, useTimeRange, validateLegendSpec } from '@perses-dev/plugin-system';
 import type { GridComponentOption } from 'echarts';
 import { Box, Skeleton, useTheme } from '@mui/material';
 import {
-  DEFAULT_LEGEND,
   EChartsDataFormat,
-  validateLegendSpec,
   LineChart,
   YAxisLabel,
   ZoomEventData,
@@ -270,6 +268,9 @@ export function TimeSeriesChartPanel(props: TimeSeriesChartProps) {
       <ContentWithLegend
         width={adjustedContentDimensions.width}
         height={adjustedContentDimensions.height}
+        // Making this small enough that the medium size doesn't get
+        // responsive-handling-ed away when in the panel options editor.
+        minChildrenHeight={50}
         legendProps={
           legend && {
             options: legend,
@@ -290,7 +291,16 @@ export function TimeSeriesChartPanel(props: TimeSeriesChartProps) {
                 unit={unit}
                 grid={gridOverrides}
                 // tooltipConfig={{ wrapLabels: true, scatterTooltip: AnnotationTooltip }}
+                tooltipConfig={{ wrapLabels: true }}
+                syncGroup="default-panel-group" // TODO: make configurable from dashboard settings and per panel-group overrides
                 onDataZoom={handleDataZoom}
+                // Show an empty chart when there is no data because the user unselected all items in
+                // the legend. Otherwise, show a "no data" message.
+                noDataVariant={
+                  !graphData.timeSeries.length && graphData.legendItems && graphData.legendItems.length > 0
+                    ? 'chart'
+                    : 'message'
+                }
               />
             </Box>
           );

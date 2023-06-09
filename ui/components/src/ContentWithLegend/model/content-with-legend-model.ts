@@ -11,7 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Theme } from '@mui/material';
+import { LegendPositions, getLegendMode } from '@perses-dev/core';
 import { LegendProps } from '../../Legend';
+import { getTableCellLayout } from '../../Table';
 
 type Dimensions = {
   width: number;
@@ -61,7 +64,8 @@ export interface ContentWithLegendProps {
 
 export interface ContentWithLegendLayoutOpts
   extends Required<Omit<ContentWithLegendProps, 'children' | 'legendProps'>> {
-  legendOptions?: LegendProps['options'];
+  legendProps?: ContentWithLegendProps['legendProps'];
+  theme: Theme;
 }
 
 export interface ContentWithLegendLayout {
@@ -75,6 +79,16 @@ export interface ContentWithLegendLayout {
   };
 }
 
+type LegendSizeConfig = Record<LegendPositions, number>;
+
+export const TABLE_LEGEND_SIZE: LegendSizeConfig = {
+  // 5 rows plus header. Value to be multiplied by row height in pixels.
+  Bottom: 6,
+
+  // Pixel value
+  Right: 250,
+};
+
 const PANEL_HEIGHT_LG_BREAKPOINT = 300;
 const LEGEND_HEIGHT_SM = 40;
 const LEGEND_HEIGHT_LG = 100;
@@ -85,11 +99,13 @@ const LEGEND_HEIGHT_LG = 100;
 export function getContentWithLegendLayout({
   width,
   height,
-  legendOptions,
+  legendProps,
   minChildrenHeight,
   minChildrenWidth,
   spacing,
+  theme,
 }: ContentWithLegendLayoutOpts): ContentWithLegendLayout {
+  const legendOptions = legendProps?.options;
   const hasLegend = !!legendOptions;
 
   const noLegendLayout: ContentWithLegendLayout = {
@@ -113,15 +129,38 @@ export function getContentWithLegendLayout({
   }
 
   const { position } = legendOptions;
+  const mode = getLegendMode(legendOptions.mode);
 
-  const legendWidth = position === 'Right' ? 200 : width;
+  let legendWidth;
+  let legendHeight;
 
-  // TODO: account for number of legend items returned when adjusting legend spacing
-  let legendHeight = LEGEND_HEIGHT_SM;
-  if (position === 'Right') {
-    legendHeight = height;
-  } else if (height >= PANEL_HEIGHT_LG_BREAKPOINT) {
-    legendHeight = LEGEND_HEIGHT_LG;
+  if (mode === 'List') {
+    // TODO: normalize list to share similar height options as the table
+    // when we add more size options.
+    legendWidth = position === 'Right' ? 200 : width;
+
+    // TODO: account for number of legend items returned when adjusting legend spacing
+    legendHeight = LEGEND_HEIGHT_SM;
+    if (position === 'Right') {
+      legendHeight = height;
+    } else if (height >= PANEL_HEIGHT_LG_BREAKPOINT) {
+      legendHeight = LEGEND_HEIGHT_LG;
+    }
+  } else {
+    // Table mode
+
+    const tableLayout = getTableCellLayout(theme, 'compact');
+
+    const tableColumns = legendProps?.tableProps?.columns || [];
+    const columnsWidth = tableColumns.reduce((total, col) => {
+      if (typeof col.width === 'number') {
+        total += col.width;
+      }
+      return total;
+    }, 0);
+
+    legendWidth = position === 'Right' ? TABLE_LEGEND_SIZE['Right'] + columnsWidth : width;
+    legendHeight = position === 'Bottom' ? TABLE_LEGEND_SIZE['Bottom'] * tableLayout.height : height;
   }
 
   const contentWidth = position === 'Right' ? width - legendWidth - spacing : width;

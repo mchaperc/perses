@@ -11,48 +11,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Portal, Typography, Stack, Switch } from '@mui/material';
+import { Box, Portal, Stack } from '@mui/material';
 import { ECharts as EChartsInstance } from 'echarts/core';
-import React, { useMemo, useState, cloneElement } from 'react';
+import { memo, useState } from 'react';
 import useResizeObserver from 'use-resize-observer';
 import { EChartsDataFormat, UnitOptions } from '../model';
 import { TooltipContent } from './TooltipContent';
 import { TooltipPluginContent, TooltipPluginProps } from './TooltipPlugin';
-import { getNearbySeriesData, NearbySeriesArray } from './nearby-series';
-import {
-  CursorCoordinates,
-  FALLBACK_CHART_WIDTH,
-  TOOLTIP_MAX_HEIGHT,
-  TOOLTIP_MIN_WIDTH,
-  TOOLTIP_MAX_WIDTH,
-  useMousePosition,
-} from './tooltip-model';
+import { TooltipHeader } from './TooltipHeader';
+import { getNearbySeriesData } from './nearby-series';
+import { CursorCoordinates, FALLBACK_CHART_WIDTH, useMousePosition } from './tooltip-model';
 import { assembleTransform, getTooltipStyles } from './utils';
 
-interface TimeSeriesTooltipProps {
+export interface TimeSeriesTooltipProps {
   chartRef: React.MutableRefObject<EChartsInstance | undefined>;
   chartData: EChartsDataFormat;
-  isTooltipPinned: boolean;
   wrapLabels?: boolean;
   unit?: UnitOptions;
   tooltipPlugin?: TooltipPluginProps;
-  // scatterTooltip?: React.ReactElement;
   onUnpinClick?: () => void;
+  pinnedPos: CursorCoordinates | null;
 }
 
-export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
+export const TimeSeriesTooltip = memo(function TimeSeriesTooltip({
   chartRef,
   chartData,
   wrapLabels,
-  isTooltipPinned,
   unit,
   tooltipPlugin,
   onUnpinClick,
+  pinnedPos,
 }: TimeSeriesTooltipProps) {
   const [showAllSeries, setShowAllSeries] = useState(false);
-  const [pinnedPos, setPinnedPos] = useState<CursorCoordinates | null>(null);
   const mousePos = useMousePosition();
   const { height, width, ref: tooltipRef } = useResizeObserver();
+
+  const isTooltipPinned = pinnedPos !== null;
 
   if (mousePos === null || mousePos.target === null) return null;
 
@@ -60,8 +54,10 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
   if (pinnedPos === null && (mousePos.target as HTMLElement).tagName !== 'CANVAS') return null;
 
   const chart = chartRef.current;
-  const chartWidth = chart?.getWidth() ?? FALLBACK_CHART_WIDTH; // Fallback width not likely to every be needed.
+  const chartWidth = chart?.getWidth() ?? FALLBACK_CHART_WIDTH; // Fallback width not likely to ever be needed.
   const cursorTransform = assembleTransform(mousePos, chartWidth, pinnedPos, height ?? 0, width ?? 0);
+
+  const totalSeries = chartData.timeSeries.length;
 
   // Get series nearby the cursor and pass into tooltip content children.
   const nearbySeries = getNearbySeriesData({
@@ -72,7 +68,6 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     unit,
     showAllSeries,
   });
-
   if (nearbySeries.length === 0) {
     return null;
   }
@@ -93,18 +88,6 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
     }
   }
 
-  if (isTooltipPinned === true && pinnedPos === null) {
-    setPinnedPos(mousePos);
-  }
-
-  // Option for user to see all series instead of only the nearby focused series.
-  // Only relevant when there are more total series than are visible.
-  const showAllSeriesToggle =
-    isTooltipPinned === true &&
-    showAllSeries === false &&
-    chartData.timeSeries.length > 1 &&
-    nearbySeries.length !== chartData.timeSeries.length;
-
   return (
     <Portal>
       <Box
@@ -114,31 +97,17 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
           transform: cursorTransform,
         }}
       >
-        <TooltipContent
-          series={nearbySeries}
-          wrapLabels={wrapLabels}
-          isTooltipPinned={isTooltipPinned}
-          onUnpinClick={() => {
-            setPinnedPos(null);
-            if (onUnpinClick !== undefined) {
-              onUnpinClick();
-            }
-          }}
-        />
-        {showAllSeriesToggle && (
-          <Stack direction="row" gap={1} alignItems="center" sx={{ textAlign: 'right' }}>
-            <Typography>Show All?</Typography>
-            <Switch
-              checked={showAllSeries}
-              onChange={(_, checked) => setShowAllSeries(checked)}
-              sx={(theme) => ({
-                '& .MuiSwitch-switchBase': {
-                  color: theme.palette.common.white,
-                },
-              })}
-            />
-          </Stack>
-        )}
+        <Stack spacing={0.5}>
+          <TooltipHeader
+            nearbySeries={nearbySeries}
+            totalSeries={totalSeries}
+            isTooltipPinned={isTooltipPinned}
+            showAllSeries={showAllSeries}
+            onShowAllClick={(checked) => setShowAllSeries(checked)}
+            onUnpinClick={onUnpinClick}
+          />
+          <TooltipContent series={nearbySeries} wrapLabels={wrapLabels} />
+        </Stack>
       </Box>
     </Portal>
   );
