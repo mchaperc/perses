@@ -12,8 +12,10 @@
 // limitations under the License.
 
 import { ReactElement, cloneElement } from 'react';
+import { Box, Typography } from '@mui/material';
 import { NearbySeriesArray } from './nearby-series';
-import { AnnotationTooltip } from './AnnotationTooltip';
+import { SeriesInfo } from './SeriesInfo';
+import { getTooltipStyles } from './utils';
 
 export type TooltipConfig = {
   wrapLabels: boolean;
@@ -23,19 +25,53 @@ export type TooltipConfig = {
 
 export interface TooltipPluginProps {
   seriesTypeTrigger: string;
-  tooltipOverride: ReactElement;
+  tooltipOverride?: ReactElement;
 }
 
 export interface TooltipPluginContentProps {
-  tooltipOverride: ReactElement;
+  tooltipOverride?: ReactElement;
   series: NearbySeriesArray | null;
   cursorTransform: string;
 }
 
 export function TooltipPluginContent({ tooltipOverride, series, cursorTransform }: TooltipPluginContentProps) {
+  if (series === null || series.length === 0) {
+    return null;
+  }
+
   if (tooltipOverride) {
+    // If consumer provides tooltip plugin content, inherit existing props but pass correct series and transform data
     return cloneElement(tooltipOverride, { series, cursorTransform });
   }
-  // Fallback to default scatter tooltip
-  return <AnnotationTooltip series={series} cursorTransform={cursorTransform} />;
+
+  // Fallback to default scatter tooltip plugin
+  return (
+    <Box
+      sx={(theme) => getTooltipStyles(theme)}
+      style={{
+        transform: cursorTransform,
+      }}
+    >
+      {series.map(({ datumIdx, seriesIdx, seriesName, y, formattedY, markerColor, isClosestToCursor }) => {
+        if (datumIdx === null || seriesIdx === null) return null;
+        const key = seriesIdx.toString() + datumIdx.toString();
+
+        return (
+          <Box key={key}>
+            <Typography>Default Scatter Tooltip</Typography>
+            <SeriesInfo
+              key={key}
+              seriesName={seriesName}
+              y={y}
+              formattedY={formattedY}
+              markerColor={markerColor}
+              totalSeries={series.length}
+              wrapLabels={true}
+              emphasizeText={isClosestToCursor}
+            />
+          </Box>
+        );
+      })}
+    </Box>
+  );
 }

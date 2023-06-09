@@ -294,7 +294,6 @@ export function LineChart({
               setIsTooltipPinned(false);
             }}
             tooltipPlugin={tooltipConfig.plugin}
-            // scatterTooltip={tooltipConfig.scatterTooltip}
           />
         )}
       <EChart

@@ -79,7 +79,8 @@ export const TimeSeriesTooltip = React.memo(function TimeSeriesTooltip({
 
   // If the user has provided a custom tooltipPlugin check whether to render it instead of default TooltipContent
   if (tooltipPlugin && nearbySeries !== null) {
-    // Use the tooltip plugin if nearby series are all match desired series type ('scatter', 'line', 'bar')
+    // Use the tooltip plugin if nearby series are all match desired series type
+    // Example: Show annotation tooltip content for nearby 'scatter' series
     const isActive = nearbySeries?.every((series) => series.seriesType === tooltipPlugin.seriesTypeTrigger);
     if (isActive) {
       return (

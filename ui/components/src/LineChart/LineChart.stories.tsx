@@ -122,11 +122,8 @@ const WITH_ANNOTATIONS_CHART_HEIGHT = 300;
 const WITH_ANNOTATIONS_LABEL_DISTANCE =
   WITH_ANNOTATIONS_CHART_HEIGHT - 41 - WITH_ANNOTATIONS_GRID.top - WITH_ANNOTATIONS_GRID.bottom;
 
-// function ExampleTooltipPlugin(props: AnnotationTooltipProps) {
-//   return <AnnotationTooltip {...props} />;
-// }
-function ExampleTooltipPluginOverride() {
-  return <p>ExampleTooltipPluginOverride</p>;
+export function ExampleTooltipPlugin(props: AnnotationTooltipProps) {
+  return <AnnotationTooltip {...props} />;
 }
 
 export const WithAnnotations: Story = {
@@ -135,9 +132,8 @@ export const WithAnnotations: Story = {
       wrapLabels: true,
       plugin: {
         seriesTypeTrigger: 'scatter',
-        tooltipOverride: <ExampleTooltipPluginOverride />,
+        tooltipOverride: <ExampleTooltipPlugin />,
       },
-      // scatterTooltip: <ExampleTooltipPlugin />,
     },
     data: {
       timeSeries: [
