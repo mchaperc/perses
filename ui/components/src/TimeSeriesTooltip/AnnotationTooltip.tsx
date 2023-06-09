@@ -3,7 +3,7 @@ import { NearbySeriesArray } from './nearby-series';
 import { SeriesInfo } from './SeriesInfo';
 import { getTooltipStyles } from './utils';
 
-interface AnnotationTooltipProps {
+export interface AnnotationTooltipProps {
   series: NearbySeriesArray | null;
   cursorTransform: string;
 }
